@@ -1,0 +1,78 @@
+<template>
+  <view class="wrapper">
+    <audio loop="true" />
+    <view class="content" catchtap="clickStart">
+      <view class="welcome" wx:if="{{!isStart}}">点击屏幕 让蝴蝶绽放</view>
+    </view>
+    <!-- <xrPeacePigeon /> -->
+
+    <butterfly
+      wx:if="{{isStart}}"
+      disable-scroll
+      id="main-frame"
+      width="{{renderWidth}}"
+      height="{{renderHeight}}"
+      style="width:{{width}}px;height:{{height}}px;"
+    />
+  </view>
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  const mp3Src = 'http://4.webdq.sinaapp.com/bgm.mp3'
+
+  createPage({
+    data: {
+      mp3Src,
+      isStart: true,
+      width: 300,
+      height: 300,
+      renderWidth: 300,
+      renderHeight: 300
+    },
+    onLoad () {
+      const info = wx.getSystemInfoSync()
+      const width = info.windowWidth
+      const height = info.windowHeight
+      const dpi = info.pixelRatio
+
+      this.setData({
+        width,
+        height,
+        renderWidth: width * dpi,
+        renderHeight: height * dpi
+      })
+
+      // 创建音频上下文
+      this.innerAudioContext = wx.createInnerAudioContext()
+      this.innerAudioContext.src = mp3Src
+      // 进入页面自动播放
+      // this.innerAudioContext.play()
+    },
+    onUnload () {
+      // 离开页面后停止播放
+      // this.innerAudioContext.stop()
+    },
+    methods: {
+      clickStart () {
+        this.setData({ isStart: true })
+      }
+    }
+  })
+</script>
+
+<style lang="stylus" scoped>
+
+</style>
+
+<script type="application/json">
+  {
+    "component": true,
+    "usingComponents": {
+      "xrPeacePigeon": "./components/xr-peace-pigeon",
+      "butterfly": "./components/butterfly",
+      "marker-video": "./components/marker-video"
+    },
+    "disableScroll": true
+  }
+</script>

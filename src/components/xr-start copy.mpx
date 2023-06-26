@@ -1,0 +1,150 @@
+<template>
+  <xr-scene bind:ready="handleReady" bind:tick="handleTick">
+    <xr-assets bind:progress="handleAssetsProgress" bind:loaded="handleAssetsLoaded">
+      <!-- 添加盒子背景皮肤 -->
+      <!-- <xr-asset-load type="texture" asset-id="waifu" src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/waifu.png" /> -->
+
+      <!-- 添加视频资源 -->
+      <!-- <xr-asset-load type="video-texture" asset-id="office" src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/videos/office-skybox.mp4" options="autoPlay:true,loop:true" /> -->
+      <!-- 添加2D背景 -->
+      <!-- <xr-asset-load type="texture" asset-id="weakme" src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/weakme.jpg" /> -->
+      <!-- 添加帧动画 -->
+      <!-- <xr-asset-load asset-id="anim" type="keyframe" src="/assets/animation.json"/> -->
+      <!--  -->
+      <xr-asset-load
+        type="gltf"
+        asset-id="damage-helmet"
+        src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/damage-helmet/index.glb"
+      />
+      <xr-asset-load
+        type="gltf"
+        asset-id="miku"
+        src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/miku.glb"
+      />
+    </xr-assets>
+    <!-- 添加背景环境的 -->
+    <xr-env env-data="xr-frame-team-workspace-day" sky-map="weakme" is-sky2d />
+
+    <xr-light type="ambient" color="1 1 1" intensity="1" />
+    <xr-light type="directional" rotation="40 70 0" color="1 1 1" intensity="3" cast-shadow />
+
+    <!-- <xr-mesh
+      node-id="cube" cast-shadow
+      geometry="cube" uniforms="u_baseColorMap: waifu,u_metallicRoughnessValues:1 0.1"
+    />
+    <xr-mesh
+      position="0 -1 0" scale="4 1 4" receive-shadow
+      geometry="plane" uniforms="u_baseColorFactor:0.4 0.6 0.8 1"
+    /> -->
+    <!-- <xr-mesh
+      node-id="cube" cast-shadow anim-keyframe="anim" anim-autoplay="clip:cube,speed:2"
+      geometry="cube" uniforms="u_baseColorMap: waifu,u_metallicRoughnessValues:1 0.1"
+    />
+    <xr-mesh
+      node-id="plane" position="0 -1 0" scale="4 1 4" receive-shadow anim-keyframe="anim" anim-autoplay="clip:plane"
+      geometry="plane" uniforms="u_baseColorMap: {{avatarTextureId}}"
+    /> -->
+
+    <!-- <xr-gltf node-id="damage-helmet" model="damage-helmet" /> -->
+    <!-- <xr-gltf model="miku" position="-0.15 0.75 0" scale="0.07 0.07 0.07" rotation="0 180 0" anim-autoplay /> -->
+
+    <!-- 添加交互 -->
+    <xr-gltf
+      node-id="damage-helmet"
+      model="damage-helmet"
+      id="helmet"
+      mesh-shape
+      bind:touch-shape="handleTouchModel"
+    />
+    <xr-gltf
+      model="miku"
+      position="-0.15 0.75 0"
+      scale="0.07 0.07 0.07"
+      rotation="0 180 0"
+      anim-autoplay
+      id="miku"
+      cube-shape="autoFit:true"
+      shape-gizmo
+      bind:touch-shape="handleTouchModel"
+    />
+
+    <xr-camera
+      id="camera"
+      position="0 1.5 4"
+      target="damage-helmet"
+      background="skybox"
+      clear-color="0.4 0.8 0.6 1"
+      camera-orbit-control
+    />
+
+    <!-- <xr-camera
+      clear-color="0.4 0.8 0.6 1"
+      position="0 1 4"
+      target="cube"
+      camera-orbit-control
+      background="skybox"
+    /> -->
+  </xr-scene>
+</template>
+
+<script>
+  import { createComponent } from '@mpxjs/core'
+
+  createComponent({
+    data: {
+    },
+    methods: {
+      handleReady: function ({ detail }) {
+        this.scene = detail.value
+        const xrFrameSystem = wx.getXrFrameSystem()
+        this.camera = this.scene.getElementById('camera').getComponent(xrFrameSystem.Camera)
+        this.helmet = { el: this.scene.getElementById('helmet'), color: 'rgba(44, 44, 44, 0.5)' }
+        this.miku = { el: this.scene.getElementById('miku'), color: 'rgba(44, 44, 44, 0.5)' }
+        this.tmpV3 = new xrFrameSystem.Vector3()
+      },
+      handleAssetsLoaded: function ({ detail }) {
+        this.triggerEvent('assetsLoaded', detail.value)
+      },
+      handleTick: function ({ detail }) {
+        this.helmet &&
+          this.triggerEvent('syncPositions', [
+            this.getScreenPosition(this.helmet),
+            this.getScreenPosition(this.miku)
+          ])
+      },
+      handleTouchModel: function ({ detail }) {
+        const { target } = detail.value
+        this[target.id].color = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
+          Math.random() * 255
+        }, 0.5)`
+      },
+      getScreenPosition: function (value) {
+        const { el, color } = value
+        const xrFrameSystem = wx.getXrFrameSystem()
+        this.tmpV3.set(el.getComponent(xrFrameSystem.Transform).worldPosition)
+        const clipPos = this.camera.convertWorldPositionToClip(this.tmpV3)
+        const { frameWidth, frameHeight } = this.scene
+        return [
+          ((clipPos.x + 1) / 2) * frameWidth,
+          (1 - (clipPos.y + 1) / 2) * frameHeight,
+          color,
+          el.id
+        ]
+      }
+      // handleTouchModel: function ({ detail }) {
+      //   const { target } = detail.value
+      //   const id = target.id
+      //   wx.showToast({ title: `点击了模型： ${id}` })
+      // }
+    }
+  })
+</script>
+
+<style lang="stylus"></style>
+
+<script type="application/json">
+  {
+    "component": true,
+    "renderer": "xr-frame"
+  }
+</script>

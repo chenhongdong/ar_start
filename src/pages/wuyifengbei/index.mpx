@@ -1,0 +1,156 @@
+<template>
+  <view class="wrapper">
+    <view class="select-area">
+      <text>寻找图中参照物，对着扫一扫</text>
+      <view class="selects">
+        <view
+          class="select {{current === index ? 'selected' : ''}}"
+          wx:for="{{selects}}"
+          wx:key="index"
+          data-num="{{index + 1}}"
+          catchtap="handleSelect(item, index)"
+        >
+          <image
+            class="img"
+            src="{{item.img}}"
+          />
+        </view>
+      </view>
+    </view>
+    <view class="content">
+      <view class="exhibition">
+        <image src="{{imgSrc}}" class="img" wx:if="{{!selected}}"/>
+        <video
+          wx:else
+          src="{{videoSrc}}"
+          autoplay="true"
+        ></video>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+
+  createPage({
+    data: {
+      selects: [
+        {
+          img: 'https://img0.baidu.com/it/u=285076425,1704667128&fm=253&fmt=auto&app=138&f=JPEG?w=666&h=500',
+          correct: false
+        },
+        {
+          img: 'https://img0.baidu.com/it/u=64982739,2643893193&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500',
+          correct: true
+        },
+        {
+          img: 'https://img2.baidu.com/it/u=2521264547,2004457039&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500',
+          correct: false
+        },
+        {
+          img: 'https://img0.baidu.com/it/u=2409118807,2640025479&fm=253&fmt=auto&app=138&f=JPEG?w=697&h=500',
+          correct: false
+        }
+      ],
+      current: -1,
+      selected: false,
+      imgSrc: '',
+      videoSrc: 'https://vd3.bdstatic.com/mda-mek8t5dfdw9e7bq1/sc/cae_h264_nowatermark/1621577884386359985/mda-mek8t5dfdw9e7bq1.mp4?v_from_s=hkapp-haokan-hbe&auth_key=1687573752-0-0-b4fc147c1d5e9a923ccfc562738d2444&bcevod_channel=searchbox_feed&cd=0&pd=1&pt=3&logid=3552688434&vid=4245360248560051171&abtest=109432_2-110930_1&klogid=3552688434'
+    },
+    methods: {
+      handleSelect (item, index) {
+        this.setData({ current: index })
+        this.setData({ imgSrc: this.selects[this.current].img || '' })
+        // 找到正确的图片
+        if (item.correct) {
+          this.setData({ selected: true })
+          wx.showToast({ title: '识别成功~' })
+        }
+      }
+    }
+  })
+</script>
+
+<style lang="stylus" scoped>
+  .wrapper {
+    padding: 20rpx;
+    background-color: #eee;
+    box-sizing: border-box;
+    
+    .select-area {
+      .selects {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30rpx;
+
+        .select {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          background-color: #ddd;
+          width: 180rpx;
+          height: 144rpx;
+          margin-left: 12rpx;
+
+          &:first-child {
+            margin-left: 0;
+          }
+
+          &.selected {
+            background-color: #0cc;
+          }
+
+          &:before {
+            content: attr(data-num);
+            position: absolute;
+            right: -10rpx;
+            top: -10rpx;
+            width: 30rpx;
+            height: 30rpx;
+            line-height: 30rpx;
+            border-radius: 50%;
+            background-color: red;
+            color: #fff;
+            font-size: 24rpx;
+            text-align: center;
+          }
+
+          .img {
+            width: 150rpx;
+            height: 120rpx;
+          }
+        }
+      }
+    }
+
+    .content {
+      width: 600rpx;
+      height: 800rpx;
+      background-color: #fff;
+      border-radius: 20rpx;
+      margin: 40rpx auto 0;
+
+      .exhibition {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+        .img {
+          width: 560rpx;
+          height: 400rpx;
+        }
+      }
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>

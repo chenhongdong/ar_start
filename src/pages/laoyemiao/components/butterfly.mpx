@@ -1,0 +1,100 @@
+<template>
+  <xr-scene
+    ar-system="modes:Marker"
+    id="xr-scene"
+    bind:ready="handleReady"
+    bind:ar-ready="handleARReady"
+  >
+    <xr-assets bind:progress="handleAssetsProgress" bind:loaded="handleAssetsLoaded">
+      <!-- <xr-asset-load
+        type="gltf"
+        asset-id="gltf"
+        src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/butterfly/index.glb"
+      /> -->
+			<xr-asset-load
+        type="gltf"
+        asset-id="gltf"
+        src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/butterfly/index.glb"
+      />
+    </xr-assets>
+    <xr-env env-data="xr-frame-team-workspace-day" />
+    <xr-node wx:if="{{arReady}}">
+			<!-- tracker是用来识别的，要识别src对应的图片才能触发load中的gltf -->
+      <xr-ar-tracker mode="Marker" src="{{markerImg}}">
+        <xr-gltf
+          model="gltf"
+          anim-autoplay
+          position="0.2 0 -0.2"
+          scale="0.6 0.6 0.6"
+          rotation="0 -50 0"
+        />
+        <xr-gltf
+          model="gltf"
+          anim-autoplay
+          position="0.4 0 0.3"
+          scale="0.5 0.5 0.5"
+          rotation="0 -50 0"
+        />
+        <xr-gltf
+          model="gltf"
+          anim-autoplay
+          position="-0.3 0 0.3"
+          scale="0.4 0.4 0.4"
+          rotation="0 -50 0"
+        />
+      </xr-ar-tracker>
+      <xr-camera
+        id="camera"
+        node-id="camera"
+        position="0.8 2.2 -5"
+        clear-color="0.925 0.925 0.925 1"
+        background="ar"
+        is-ar-camera
+      ></xr-camera>
+    </xr-node>
+    <xr-node node-id="lights">
+      <xr-light type="ambient" color="1 1 1" intensity="1" />
+      <xr-light type="directional" rotation="180 0 0" color="1 1 1" intensity="3" />
+    </xr-node>
+  </xr-scene>
+</template>
+
+<script>
+  import { createComponent } from '@mpxjs/core'
+
+  createComponent({
+    data: {
+      loaded: false,
+      arReady: false,
+      markerImg: 'https://www.hsjycc.com/upload/resources/image/2021/09/06/550072_800x450.jpeg'
+    },
+    methods: {
+      handleReady ({ detail }) {
+        const xrScene = (this.scene = detail.value)
+        console.log('xr-scene', xrScene)
+      },
+      handleAssetsProgress ({ detail }) {
+        console.log('assets progress', detail.value)
+      },
+      handleAssetsLoaded ({ detail }) {
+        console.log('assets loaded', detail.value)
+        wx.showToast({ title: '资源加载完了' })
+        this.setData({ loaded: true })
+      },
+      handleARReady ({ detail }) {
+        console.log('arReady')
+        wx.showToast({ title: 'AR准备好了' })
+        this.setData({ arReady: true })
+      }
+    }
+  })
+</script>
+
+<style lang="stylus"></style>
+
+<script type="application/json">
+  {
+    "component": true,
+    "renderer": "xr-frame"
+  }
+</script>
