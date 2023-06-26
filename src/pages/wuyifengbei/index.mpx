@@ -1,7 +1,7 @@
 <template>
   <view class="wrapper">
     <view class="select-area">
-      <text>寻找图中参照物，对着扫一扫</text>
+      <text>寻找图中参照物，找一找哪个才是正确的？</text>
       <view class="selects">
         <view
           class="select {{current === index ? 'selected' : ''}}"
@@ -19,7 +19,24 @@
     </view>
     <view class="content">
       <view class="exhibition">
-        <image src="{{imgSrc}}" class="img" wx:if="{{!selected}}"/>
+        <!-- 轮播图片+音频播放 -->
+        <audio loop="true" />
+        <swiper
+          wx:if="{{!selected}}"
+          autoplay="{{autoplay}}"
+          interval="{{interval}}"
+          duration="{{duration}}"
+          class="exhibition-swiper"
+        >
+          <block wx:for="{{pics}}" wx:key="*this">
+            <swiper-item>
+              <view class="swiper-item">
+                <image src="{{item}}" class="img" />
+              </view>
+            </swiper-item>
+          </block>
+        </swiper>
+        <!-- 识别成功播放视频 -->
         <video
           wx:else
           src="{{videoSrc}}"
@@ -32,31 +49,66 @@
 
 <script>
   import { createPage } from '@mpxjs/core'
+  const mp3Src = 'http://4.webdq.sinaapp.com/bgm.mp3'
 
   createPage({
     data: {
       selects: [
         {
           img: 'https://img0.baidu.com/it/u=285076425,1704667128&fm=253&fmt=auto&app=138&f=JPEG?w=666&h=500',
-          correct: false
+          correct: false,
+          pics: [
+            'https://img0.baidu.com/it/u=285076425,1704667128&fm=253&fmt=auto&app=138&f=JPEG?w=666&h=500',
+            'https://img1.baidu.com/it/u=1662243348,1832761453&fm=253&fmt=auto&app=138&f=JPEG?w=754&h=500',
+            'https://img1.baidu.com/it/u=1956349620,1282692573&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500'
+          ]
         },
         {
           img: 'https://img0.baidu.com/it/u=64982739,2643893193&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500',
-          correct: true
+          correct: true,
+          pics: []
         },
         {
           img: 'https://img2.baidu.com/it/u=2521264547,2004457039&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500',
-          correct: false
+          correct: false,
+          pics: [
+            'https://img2.baidu.com/it/u=2521264547,2004457039&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500',
+            'https://img1.baidu.com/it/u=2521516110,1741003725&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500',
+            'https://img1.baidu.com/it/u=2248213504,3897803824&fm=253&fmt=auto&app=138&f=JPEG?w=799&h=500',
+            'https://img1.baidu.com/it/u=3577917559,828617637&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=500'
+          ]
         },
         {
           img: 'https://img0.baidu.com/it/u=2409118807,2640025479&fm=253&fmt=auto&app=138&f=JPEG?w=697&h=500',
-          correct: false
+          correct: false,
+          pics: [
+            'https://img0.baidu.com/it/u=2409118807,2640025479&fm=253&fmt=auto&app=138&f=JPEG?w=697&h=500',
+            'https://img1.baidu.com/it/u=2177801977,3979392672&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500',
+            'https://img1.baidu.com/it/u=4183921079,1670744990&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+          ]
         }
       ],
+      autoplay: false,
+      interval: 2000,
+      duration: 500,
       current: -1,
       selected: false,
       imgSrc: '',
       videoSrc: 'https://vd3.bdstatic.com/mda-mek8t5dfdw9e7bq1/sc/cae_h264_nowatermark/1621577884386359985/mda-mek8t5dfdw9e7bq1.mp4?v_from_s=hkapp-haokan-hbe&auth_key=1687573752-0-0-b4fc147c1d5e9a923ccfc562738d2444&bcevod_channel=searchbox_feed&cd=0&pd=1&pt=3&logid=3552688434&vid=4245360248560051171&abtest=109432_2-110930_1&klogid=3552688434'
+    },
+    onLoad () {
+      // 创建音频上下文
+      this.innerAudioContext = wx.createInnerAudioContext()
+      this.innerAudioContext.src = mp3Src
+    },
+    onUnload () {
+      // 离开页面后停止播放
+      this.innerAudioContext.stop()
+    },
+    computed: {
+      pics () {
+        return this.selects[this.current]?.pics
+      }
     },
     methods: {
       handleSelect (item, index) {
@@ -64,9 +116,18 @@
         this.setData({ imgSrc: this.selects[this.current].img || '' })
         // 找到正确的图片
         if (item.correct) {
+          wx.showToast({ title: '识别成功~', icon: 'success' })
           this.setData({ selected: true })
-          wx.showToast({ title: '识别成功~' })
+          this.setData({ autoplay: false })
+          this.innerAudioContext.stop()
+          return
         }
+        this.setData({
+          selected: false,
+          autoplay: true
+        })
+        // 进入页面自动播放
+        this.innerAudioContext.play()
       }
     }
   })
@@ -75,7 +136,6 @@
 <style lang="stylus" scoped>
   .wrapper {
     padding: 20rpx;
-    background-color: #eee;
     box-sizing: border-box;
     
     .select-area {
@@ -129,7 +189,7 @@
     .content {
       width: 600rpx;
       height: 800rpx;
-      background-color: #fff;
+      background-color: #eee;
       border-radius: 20rpx;
       margin: 40rpx auto 0;
 
@@ -140,9 +200,15 @@
         width: 100%;
         height: 100%;
 
-        .img {
-          width: 560rpx;
-          height: 400rpx;
+        .exhibition-swiper {
+          width: 100%;
+
+          .swiper-item {
+            .img {
+              width: 100%;
+              height: 400rpx;
+            }
+          }
         }
       }
     }

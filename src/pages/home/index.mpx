@@ -2,76 +2,14 @@
   <view>
     <list />
   </view>
-  <!-- <xr-start
-    disable-scroll
-    id="main-frame"
-    wx:if="{{!showOutput}}"
-    width="{{renderWidth}}"
-    height="{{renderHeight}}"
-    style="width:{{width}}px;height:{{height}}px;"
-    bind:confirmHandle="handleConfirm"
-    bind:cancelHandle="handleCancel"
-    bind:assetsLoaded="handleLoaded"
-    bind:syncPositions="handleSyncPositions"
-  />
-
-  <audio id="audio" controls="true" src="{{audioSrc}}" wx:if="{{!showOutput}}" loop></audio>
-
-  <image
-    src="{{OUTPUT_PNG}}"
-    wx:if="{{showOutput}}"
-    style="width:100%;height:600px;"
-    bindtap="closeList"
-  /> -->
 </template>
 
 <script>
   import { createPage } from '@mpxjs/core'
 
-  const audioSrc = 'https://tts.baidu.com/text2audio?time=1686630772&lan=ZH&vol=9&cuid=baike&ctp=1&rate=32&per=4100&tex=%E6%B8%AD%E5%8D%8E%E8%B5%B7%E4%B9%89%E6%98%AF%E5%A4%A7%E9%9D%A9%E5%91%BD%E5%A4%B1%E8%B4%A5%E5%90%8E%E4%B8%AD%E5%9B%BD%E5%85%B1%E4%BA%A7%E5%85%9A%E5%9C%A8%E8%A5%BF%E5%8C%97%E5%9C%B0%E5%8C%BA%E9%A2%86%E5%AF%BC%E7%9A%84%E8%A7%84%E6%A8%A1%E8%BE%83%E5%A4%A7%E7%9A%84%E4%B8%80%E6%AC%A1%E6%AD%A6%E8%A3%85%E8%B5%B7%E4%B9%89%E3%80%82%E8%BD%B0%E8%BD%B0%E7%83%88%E7%83%88%E7%9A%84%E5%A4%A7%E9%9D%A9%E5%91%BD%E5%A4%B1%E8%B4%A5%E5%90%8E%EF%BC%8C&pdt=32&auth=26277801b4a36af0e628b733bffc5d0b9412873460574a827352e013e275fd41'
-
   createPage({
-    data: {
-      width: 300,
-      height: 300,
-      renderWidth: 300,
-      renderHeight: 300,
-      audioSrc
-      // audioSrc: 'https://m801.music.126.net/20230613131720/1f9613fc4f68cecfe17a54ff98621f54/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/17718435852/97a3/1654/3e5e/1f8b83378352fb48773c53d1cff2ea6f.m4a',
-    },
-    onLoad () {
-      const info = wx.getSystemInfoSync()
-      const width = info.windowWidth
-      const height = info.windowHeight
-      const dpi = info.pixelRatio
-
-      this.setData({
-        width,
-        height,
-        renderWidth: width * dpi,
-        renderHeight: height * dpi
-      })
-
-      this.audioCtx = wx.createAudioContext('audio')
-    },
-    methods: {
-      handleConfirm () {
-        wx.showToast({ title: '即将播放语音介绍' })
-        // 播放音频
-        this.audioCtx.play()
-      },
-      handleCancel ({ detail }) {
-        wx.showToast({
-          title: '来看看老爷庙有哪些好玩的吧'
-        })
-        setTimeout(() => {
-          this.setData({ showOutput: detail })
-        }, 1000)
-      },
-      closeList () {
-        this.setData({ showOutput: false })
-      }
-    }
+    data: {},
+    methods: {}
   })
 </script>
 
@@ -79,7 +17,6 @@
   {
     "usingComponents": {
       "list": "./list"
-    },
-    "disableScroll": true
+    }
   }
 </script>

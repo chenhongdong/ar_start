@@ -6,11 +6,6 @@
     bind:ar-ready="handleARReady"
   >
     <xr-assets bind:progress="handleAssetsProgress" bind:loaded="handleAssetsLoaded">
-      <!-- <xr-asset-load
-        type="gltf"
-        asset-id="gltf"
-        src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/butterfly/index.glb"
-      /> -->
 			<xr-asset-load
         type="gltf"
         asset-id="gltf"
@@ -78,12 +73,10 @@
       },
       handleAssetsLoaded ({ detail }) {
         console.log('assets loaded', detail.value)
-        wx.showToast({ title: '资源加载完了' })
         this.setData({ loaded: true })
       },
       handleARReady ({ detail }) {
         console.log('arReady')
-        wx.showToast({ title: 'AR准备好了' })
         this.setData({ arReady: true })
       }
     }

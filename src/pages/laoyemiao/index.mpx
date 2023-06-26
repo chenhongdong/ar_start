@@ -1,13 +1,13 @@
 <template>
-  <view class="wrapper">
+  <view class="wrapper {{isStart ? 'hide' : ''}}">
     <audio loop="true" />
     <view class="content" catchtap="clickStart">
-      <view class="welcome" wx:if="{{!isStart}}">点击屏幕 让蝴蝶绽放</view>
+      <view class="welcome" wx:if="{{!isStart}}">扫描老爷庙 让蝴蝶绽放</view>
     </view>
-    <!-- <xrPeacePigeon /> -->
-
+  </view>
+  <view class="ar-area" wx:if="{{isStart}}">
+    <!-- 蝴蝶AR -->
     <butterfly
-      wx:if="{{isStart}}"
       disable-scroll
       id="main-frame"
       width="{{renderWidth}}"
@@ -23,8 +23,7 @@
 
   createPage({
     data: {
-      mp3Src,
-      isStart: true,
+      isStart: false,
       width: 300,
       height: 300,
       renderWidth: 300,
@@ -47,31 +46,58 @@
       this.innerAudioContext = wx.createInnerAudioContext()
       this.innerAudioContext.src = mp3Src
       // 进入页面自动播放
-      // this.innerAudioContext.play()
+      this.innerAudioContext.play()
     },
     onUnload () {
       // 离开页面后停止播放
-      // this.innerAudioContext.stop()
+      this.innerAudioContext.stop()
     },
     methods: {
       clickStart () {
         this.setData({ isStart: true })
+        this.innerAudioContext.stop()
       }
     }
   })
 </script>
 
 <style lang="stylus" scoped>
+page {
+  height: 100%;
+}
+.wrapper {
+  height: 100%;
+  &.hide {
+    display: none;
+  }
 
+  .content {
+    position: relative;
+    height: 100%;
+
+    .welcome {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 300rpx;
+      height: 56rpx;
+      line-height: 56rpx;
+      border-radius: 10rpx;
+      transform: translate(-50%, -50%);
+      background-color: red;
+      text-align: center;
+      font-size: 26rpx;
+      color: #fff;
+    }
+  }
+}
 </style>
 
 <script type="application/json">
   {
     "component": true,
     "usingComponents": {
-      "xrPeacePigeon": "./components/xr-peace-pigeon",
-      "butterfly": "./components/butterfly",
-      "marker-video": "./components/marker-video"
+      "butterfly": "./components/butterfly"
     },
     "disableScroll": true
   }
